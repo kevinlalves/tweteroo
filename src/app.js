@@ -15,7 +15,7 @@ server.get("/users", (req, res) => {
 
 server.post("/sign-up", (req, res) => {
   const newUser = req.body;
-  if (!isValidUser(newUser))  {
+  if (!isValidUser(newUser)) {
     return res.sendStatus(400);
   }
 
@@ -48,7 +48,6 @@ server.post("/tweets", (req, res) => {
     tweet,
     username: user
   });
-  users[user].tweets.push(tweet);
 
   res.status(201).send("OK");
 });
@@ -56,21 +55,25 @@ server.post("/tweets", (req, res) => {
 server.get("/tweets", (req, res) => {
   const [page, per, valid] = validatePages(req.query.page, req.query.per);
 
-  if(!valid) {
+  if (!valid) {
     return res.sendStatus(400);
   }
 
-  res.send(tweetSerializer(tweets.slice(per*(page-1), per*page)));
+  res.send(tweetSerializer(tweets.slice(per * (page - 1), per * page)));
 });
 
 server.get("/tweets/:username", (req, res) => {
   const { username } = req.params;
 
-  if (!isValidUser({username, avatar: ""})) {
+  if (!isValidUser({ username, avatar: "placeholder" })) {
     return res.sendStatus(400);
   }
 
-  res.send(tweetSerializer(users[username].tweets));
+  if (!users[username]) {
+    return res.sendStatus(404);
+  }
+
+  res.send(tweetSerializer(tweets.filter(tweet => tweet.username === username)));
 });
 
 function isValidUser(user) {
@@ -88,7 +91,6 @@ function isValidTweet(tweet, user) {
 
 function validatePages(page, per) {
   let valid = true;
-  console.log(page, per);
   page = page === undefined ? 1 : Number(page);
   per = per === undefined ? 10 : Number(per);
 
@@ -104,11 +106,11 @@ function validatePages(page, per) {
 }
 
 function tweetSerializer(tweets) {
-  if (tweets.length) {
-    for(let i = 0; i < tweets.length; i++) {
+  if (Array.isArray(tweets)) {
+    for (let i = 0; i < tweets.length; i++) {
       tweets[i].avatar = users[tweets[i].username].avatar;
     }
-  } else if (tweets) {
+  } else {
     tweets.avatar = users[tweets.username].avatar;
   }
   return tweets;
