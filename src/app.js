@@ -36,11 +36,11 @@ server.post("/tweets", (req, res) => {
   const { tweet } = req.body;
   const { user } = req.headers;
 
-  if (!isValidTweet(tweet, user)) {
-    return res.status(400);
+  if (!isValidTweet(tweet)) {
+    return res.sendStatus(400);
   }
 
-  if (!users[user]) {
+  if (!user || !users[user]) {
     return res.status(401).send("UNAUTHORIZED");
   }
 
@@ -85,8 +85,8 @@ function isValidUser(user) {
   return validateType;
 }
 
-function isValidTweet(tweet, user) {
-  return Boolean((tweet && (typeof tweet === "string")) && (user && (typeof user === "string")));
+function isValidTweet(tweet) {
+  return Boolean(tweet && (typeof tweet === "string"));
 }
 
 function validatePages(page, per) {
