@@ -19,9 +19,10 @@ server.post("/sign-up", (req, res) => {
     return res.sendStatus(400);
   }
 
+  /*
   if (users[newUser.username]) {
     return res.status(422).send("Username already in use");
-  }
+  }*/
 
   users[newUser.username] = {
     username: newUser.username,
